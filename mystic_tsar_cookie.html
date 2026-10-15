@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystic Tsar Cookie - Russian History Edition</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;600;700&family=Marcellus&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        imperial: {
+                            red: '#8B0000',
+                            crimson: '#660000',
+                            gold: '#D4AF37',
+                            lightgold: '#F3E5AB',
+                            parchment: '#F4EAD5',
+                            darkparchment: '#E2D4B7',
+                            black: '#120807',
+                        }
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        marcellus: ['Marcellus', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #120807;
+            background-image: radial-gradient(circle at center, #2a0808 0%, #120807 100%);
+            color: #F4EAD5;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Cookie styling and animation */
+        .cookie-container {
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s ease;
+        }
+
+        .cookie-container:hover {
+            transform: scale(1.03);
+        }
+
+        .cookie-svg {
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.8));
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Crack Animations */
+        .cookie-left {
+            transform-origin: center left;
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .cookie-right {
+            transform-origin: center right;
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .cookie-cracked .cookie-left {
+            transform: translateX(-40px) rotate(-15deg);
+        }
+
+        .cookie-cracked .cookie-right {
+            transform: translateX(40px) rotate(15deg);
+        }
+
+        /* Paper slip reveal */
+        .fortune-paper {
+            background: linear-gradient(135deg, #FFFDF0 0%, #F4EAD5 100%);
+            border: 2px solid #C5A059;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(212, 175, 55, 0.2);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 0;
+            transform: scale(0.2) translateY(50px);
+            pointer-events: none;
+        }
+
+        .fortune-paper.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Glow effects for Easter Eggs */
+        .easter-egg-glow {
+            animation: imperialGlow 2s infinite alternate;
+        }
+
+        @keyframes imperialGlow {
+            0% { box-shadow: 0 0 15px #D4AF37, inset 0 0 10px #D4AF37; }
+            100% { box-shadow: 0 0 35px #FFD700, 0 0 10px #FF8C00, inset 0 0 20px #FFD700; }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #120807;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8B0000;
+            border-radius: 4px;
+            border: 1px solid #D4AF37;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between relative selection:bg-imperial-gold selection:text-imperial-black">
+
+    <!-- Header Navigation -->
+    <header class="w-full p-4 md:p-6 flex justify-between items-center border-b border-imperial-gold/20 bg-imperial-black/60 backdrop-blur-md z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full border-2 border-imperial-gold bg-imperial-crimson flex items-center justify-center text-imperial-gold shadow-lg">
+                <i class="fa-solid font-cinzel text-xl">👑</i>
+            </div>
+            <div>
+                <h1 class="font-cinzel text-lg md:text-xl font-bold tracking-wider text-imperial-gold">Mystic Tsar Cookie</h1>
+                <p class="text-xs text-imperial-parchment/70 font-marcellus">Imperial History & Wisdom Edition</p>
+            </div>
+        </div>
+
+        <button id="openVaultBtn" class="flex items-center gap-2 px-4 py-2 rounded-full border border-imperial-gold/40 bg-imperial-crimson/40 hover:bg-imperial-crimson text-imperial-lightgold hover:border-imperial-gold transition-all duration-300 text-sm shadow-md">
+            <i class="fa-solid fa-vault text-imperial-gold"></i>
+            <span class="hidden sm:inline font-cinzel">Tsar's Archive</span>
+            <span id="eggBadge" class="ml-1 px-2 py-0.5 text-xs font-bold bg-imperial-gold text-imperial-black rounded-full">0/12</span>
+        </button>
+    </header>
+
+    <!-- Main Content Stage -->
+    <main class="flex-1 flex flex-col items-center justify-center p-4 relative z-10 my-4">
+        
+        <!-- Instruction Banner -->
+        <div id="instructionText" class="text-center mb-6 transition-opacity duration-300">
+            <p class="font-marcellus text-lg md:text-xl text-imperial-lightgold animate-pulse">
+                ✨ Tap the Imperial Cookie to Reveal Your Destiny ✨
+            </p>
+            <p class="text-xs text-imperial-parchment/60 mt-1">Listen closely... historical secrets lurk within!</p>
+        </div>
+
+        <!-- Interactive Cookie Area -->
+        <div class="relative flex items-center justify-center w-full max-w-md min-h-[260px]">
+            
+            <!-- SVG Fortune Cookie -->
+            <div id="cookie" class="cookie-container w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
+                <svg viewBox="0 0 300 300" class="cookie-svg w-full h-full">
+                    <defs>
+                        <!-- Cookie Gradients -->
+                        <linearGradient id="cookieGradLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#F3C87A" />
+                            <stop offset="50%" stop-color="#D99B38" />
+                            <stop offset="100%" stop-color="#8A5012" />
+                        </linearGradient>
+                        <linearGradient id="cookieGradRight" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#EBB259" />
+                            <stop offset="60%" stop-color="#C28222" />
+                            <stop offset="100%" stop-color="#6E3A06" />
+                        </linearGradient>
+                        <filter id="shadow">
+                            <feDropShadow dx="0" dy="10" stdDeviation="8" flood-opacity="0.5"/>
+                        </filter>
+                    </defs>
+
+                    <!-- Cookie Left Half -->
+                    <g class="cookie-left">
+                        <path d="M 150 50 C 90 50, 30 100, 30 170 C 30 230, 80 260, 135 240 C 120 200, 115 150, 150 50 Z" 
+                              fill="url(#cookieGradLeft)" stroke="#522B04" stroke-width="2"/>
+                        <!-- Inner fold detail -->
+                        <path d="M 80 160 C 100 180, 120 200, 135 240" fill="none" stroke="#703E0B" stroke-width="3" opacity="0.6"/>
+                    </g>
+
+                    <!-- Cookie Right Half -->
+                    <g class="cookie-right">
+                        <path d="M 150 50 C 210 50, 270 100, 270 170 C 270 230, 220 260, 165 240 C 180 200, 185 150, 150 50 Z" 
+                              fill="url(#cookieGradRight)" stroke="#522B04" stroke-width="2"/>
+                        <!-- Inner fold detail -->
+                        <path d="M 220 160 C 200 180, 180 200, 165 240" fill="none" stroke="#522B04" stroke-width="3" opacity="0.6"/>
+                    </g>
+
+                    <!-- Center Seal Stamp (Double Headed Eagle motif outline) -->
+                    <circle cx="150" cy="150" r="18" fill="#8B0000" opacity="0.8" class="cookie-left"/>
+                    <text x="150" y="156" font-family="Cinzel" font-size="14" fill="#D4AF37" text-anchor="middle" font-weight="bold" class="cookie-left">👑</text>
+                </svg>
+            </div>
+
+            <!-- Revealing Fortune Paper -->
+            <div id="fortunePaper" class="fortune-paper absolute w-full max-w-sm p-6 rounded-lg text-imperial-black flex flex-col justify-between items-center text-center my-auto">
+                
+                <!-- Special Easter Egg Header (Hidden by default) -->
+                <div id="easterEggHeader" class="hidden w-full mb-3 pb-2 border-b-2 border-imperial-gold flex items-center justify-center gap-2">
+                    <span class="text-xl">🏆</span>
+                    <span class="font-cinzel font-bold text-xs md:text-sm tracking-widest text-imperial-crimson uppercase">Imperial Secret Discovered!</span>
+                    <span class="text-xl">🏛️</span>
+                </div>
+
+                <!-- Fortune Category Badge -->
+                <span id="fortuneTag" class="text-[10px] font-cinzel font-bold uppercase tracking-widest px-2.5 py-1 rounded bg-imperial-crimson/10 text-imperial-crimson border border-imperial-crimson/20 mb-2">
+                    Academic Wisdom
+                </span>
+
+                <!-- Fortune Main Text -->
+                <p id="fortuneText" class="font-marcellus text-base md:text-lg text-stone-900 leading-relaxed my-2">
+                    "Your patience in research shall outlast the longest Russian winter."
+                </p>
+
+                <!-- Historical Context Note (Only for Easter eggs) -->
+                <p id="historicalNote" class="hidden text-xs italic font-serif text-stone-600 bg-amber-50 p-2 rounded border border-amber-200/60 my-2">
+                    Note context here...
+                </p>
+
+                <!-- Interactive Buttons inside Paper -->
+                <div class="flex items-center gap-3 mt-4 w-full">
+                    <button id="copyBtn" class="flex-1 py-2 px-3 rounded bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>Copy</span>
+                    </button>
+                    <button id="resetBtn" class="flex-1 py-2 px-3 rounded bg-imperial-crimson hover:bg-red-900 text-imperial-lightgold text-xs font-cinzel font-bold transition flex items-center justify-center gap-1.5 shadow">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Another Cookie</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer Banner -->
+    <footer class="w-full p-4 text-center text-xs text-imperial-parchment/50 border-t border-imperial-gold/10 bg-black/40">
+        <p>Created for Pskov History Seminars & Students • From Time of Troubles to Peter the Great</p>
+    </footer>
+
+    <!-- Tsar's Archive Drawer / Modal -->
+    <div id="vaultModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex justify-end transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="w-full max-w-md bg-imperial-black border-l border-imperial-gold/30 h-full flex flex-col p-6 shadow-2xl overflow-hidden transform translate-x-full transition-transform duration-300" id="vaultPanel">
+            
+            <!-- Drawer Header -->
+            <div class="flex justify-between items-center pb-4 border-b border-imperial-gold/20">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-scroll text-imperial-gold text-xl"></i>
+                    <h2 class="font-cinzel text-lg font-bold text-imperial-gold">Tsar's Secret Vault</h2>
+                </div>
+                <button id="closeVaultBtn" class="text-imperial-parchment/60 hover:text-imperial-gold text-xl p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Vault Subtitle & Progress -->
+            <div class="my-4 bg-imperial-crimson/20 p-3 rounded-lg border border-imperial-gold/30">
+                <div class="flex justify-between items-center text-xs font-cinzel mb-1">
+                    <span class="text-imperial-lightgold">Historical Easter Eggs Found</span>
+                    <span id="vaultProgressText" class="text-imperial-gold font-bold">0 / 12</span>
+                </div>
+                <div class="w-full bg-black/50 h-2 rounded-full overflow-hidden border border-imperial-gold/20">
+                    <div id="vaultProgressBar" class="bg-gradient-to-r from-amber-600 to-imperial-gold h-full w-0 transition-all duration-500"></div>
+                </div>
+            </div>
+
+            <!-- Collected Scroll List -->
+            <div id="vaultList" class="flex-1 overflow-y-auto space-y-3 pr-1 my-2">
+                <!-- Vault items will be dynamically injected here -->
+            </div>
+
+            <!-- Reset Collection Button -->
+            <div class="pt-4 border-t border-imperial-gold/20 text-center">
+                <button id="clearArchiveBtn" class="text-xs text-imperial-parchment/40 hover:text-red-400 underline transition">
+                    Reset Discovered Archive
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-imperial-gold text-imperial-black px-4 py-2 rounded-full font-semibold text-xs shadow-2xl transition-all duration-300 opacity-0 transform translate-y-4 pointer-events-none z-50 flex items-center gap-2">
+        <i class="fa-solid fa-check-circle"></i>
+        <span id="toastMsg">Fortune copied to clipboard!</span>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        /* --- DATABASES --- */
+
+        // 20+ General Inspirational / Academic Fortunes with subtle historical humor
+        const GENERAL_FORTUNES = [
+            "Your draft essay will survive peer review better than a boyar in a Kremlin uprising.",
+            "Patience! Rome wasn't built in a day, and St. Petersburg wasn't built on dry land.",
+            "A great discovery awaits you in the library archives... or at least on page 2 of Google Scholar.",
+            "Trust the process. Even a 16-year-old Tsar eventually figures out how to run an empire.",
+            "Your intellectual stamina shall endure longer than a 17th-century church service.",
+            "An unexpected alliance in your group project will bring victory without civil war.",
+            "He who prepares for exams avoids the Time of Troubles in their final grades.",
+            "Your focus will be sharper than a Streltsy halberd during finals week.",
+            "Beware of quick fixes; not all shortcuts lead to legitimate triumphs.",
+            "A well-structured argument is stronger than the thickest stone walls of Pskov.",
+            "Diplomacy in your team meeting will prevent an internal uprising.",
+            "Your wisdom grows with every coffee consumed during late-night study sessions.",
+            "Great leaders listen twice as much as they decree. Take notes today!",
+            "Avoid financial inflation: spend your energy on reading, not procrastination.",
+            "A surprise compliment from your lecturer will boost your moral treasury.",
+            "Do not fear starting over. Every great dynasty begins with a single reset.",
+            "Your thesis statement will illuminate the dark corners of confusion.",
+            "Rest tonight; even absolute monarchs must sleep before battle.",
+            "Ambition without preparation is merely a False Dmitry in disguise.",
+            "Success comes to those who steady the ship when others panic.",
+            "Keep your notes handwritten and clear—no algorithm can duplicate your mind."
+        ];
+
+        // 12 Rare Special Easter Eggs directly connected to the syllabus & discussions
+        const EASTER_EGGS = [
+            {
+                id: "egg_false_dmitry",
+                title: "The Impostor's Warning",
+                text: "Beware of glowing promises from smooth-talking strangers—not every 'Dmitry' is who he claims to be!",
+                history: "Refers to the False Dmitrys during the Time of Troubles (1605–1612), who claimed to be Ivan the Terrible's surviving son to seize the throne."
+            },
+            {
+                id: "egg_pskov_kremlin",
+                title: "Shield of Pskov",
+                text: "Your boundaries are as unyielding as the stone walls of the Pskov Krom against foreign sieges.",
+                history: "Pskov's Kremlin (Krom) famously held out against Swedish King Gustavus Adolphus in 1615, protecting young Tsar Mikhail's fragile new state."
+            },
+            {
+                id: "egg_kutekroma",
+                title: "Pushkin’s Inspiration at Kutekroma",
+                text: "Sit quietly at the river confluence like Pushkin at Kutekroma Tower; your greatest masterpiece is loading.",
+                history: "Alexander Pushkin sat in a gazebo at Kutekroma Tower in Pskov while drafting scenes for his famous drama 'Boris Godunov' (1824–1825)."
+            },
+            {
+                id: "egg_holy_fool",
+                title: "The Holy Fool’s Truth",
+                text: "Sometimes the quietest person in the room speaks the heaviest truth. Listen to the Holy Fool!",
+                history: "In Russian tradition (and Mussorgsky's opera 'Boris Godunov'), Yurodivy (Holy Fools) were the only figures bold enough to speak truth to power."
+            },
+            {
+                id: "egg_beard_tax",
+                title: "Peter’s Razor",
+                text: "Prepare for radical modernization! It's time to shave away old habits (and perhaps pay a beard tax).",
+                history: "Upon returning from Europe in 1698, Peter the Great famously cut off boyars' beards and instituted a Beard Tax to forcibly westernize court life."
+            },
+            {
+                id: "egg_grand_embassy",
+                title: "Incognito Genius",
+                text: "Travel with curiosity like Peter Mikhailov in Europe: learn shipwrighting, ask questions, and return transformed.",
+                history: "In 1697–1698, young Tsar Peter traveled through Western Europe disguised as carpenter 'Peter Mikhailov' during his Grand Embassy."
+            },
+            {
+                id: "egg_copper_riot",
+                title: "Sound Currency",
+                text: "Avoid cheap substitutes! Fake coin promises bring hyperinflation and a march on Kolomenskoye.",
+                history: "The 1662 Copper Riot erupted in Moscow when Tsar Alexey issued copper coins at silver value, causing catastrophic price spikes."
+            },
+            {
+                id: "egg_1649_code",
+                title: "The Sobornoye Ulozhenie",
+                text: "Your commitments are now codified in print! No running away on St. George’s Day.",
+                history: "Tsar Alexey's 1649 Legal Code permanently tied peasants to the land, formally codifying serfdom into Russian imperial law."
+            },
+            {
+                id: "egg_streltsy_porch",
+                title: "Beware the Red Porch",
+                text: "Keep calm under pressure! Do not let the sudden chaos of the Kremlin Streltsy rattle your focus.",
+                history: "In 1682, 10-year-old Peter witnessed the bloody Streltsy uprising on the Kremlin's Red Porch, instilling a lifelong distrust of traditional guards."
+            },
+            {
+                id: "egg_toy_armies",
+                title: "The Fun Armies of Preobrazhenskoye",
+                text: "Your current 'toy projects' and casual practice sessions are secretly building tomorrow's Imperial Guard.",
+                history: "Peter the Great's childhood war games in Preobrazhenskoye with 'Poteshnye Voiska' (toy armies) birthed the elite Preobrazhensky Guard."
+            },
+            {
+                id: "egg_stenka_razin",
+                title: "Wild Volga Fire",
+                text: "Channel your rebellious energy wisely; do not let your inner Stenka Razin storm Simbirsk without a plan!",
+                history: "Stenka Razin led a massive Cossack and peasant uprising along the Volga (1670–1671) against boyars before his defeat at Simbirsk."
+            },
+            {
+                id: "egg_zemsky_sobor",
+                title: "The 1613 Consensus",
+                text: "When deadlocked in debate, choose the peaceful compromise candidate that everyone can support.",
+                history: "In 1613, the Zemsky Sobor elected 16-year-old Mikhail Romanov as a safe consensus candidate to end the Time of Troubles."
+            }
+        ];
+
+        /* --- AUDIO SYNTHESIZER (Web Audio API) --- */
+        class SoundEffects {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playCrackle() {
+                this.init();
+                if (!this.ctx) return;
+
+                // Buffer noise generation for dry crisp cookie crack
+                const bufferSize = this.ctx.sampleRate * 0.15;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(1200, this.ctx.currentTime);
+                filter.Q.setValueAtTime(3, this.ctx.currentTime);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.8, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.14);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start();
+            }
+
+            playFanfare() {
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, now + 0.35); // C6
+
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.8);
+            }
+        }
+
+        const sfx = new SoundEffects();
+
+        /* --- STATE MANAGEMENT --- */
+        let discoveredEggs = new Set(JSON.parse(localStorage.getItem('tsar_discovered_eggs') || '[]'));
+        let isCracked = false;
+        let currentFortuneText = "";
+
+        /* --- DOM ELEMENTS --- */
+        const cookieEl = document.getElementById('cookie');
+        const fortunePaperEl = document.getElementById('fortunePaper');
+        const fortuneTextEl = document.getElementById('fortuneText');
+        const fortuneTagEl = document.getElementById('fortuneTag');
+        const easterEggHeaderEl = document.getElementById('easterEggHeader');
+        const historicalNoteEl = document.getElementById('historicalNote');
+        const instructionTextEl = document.getElementById('instructionText');
+        
+        const openVaultBtn = document.getElementById('openVaultBtn');
+        const closeVaultBtn = document.getElementById('closeVaultBtn');
+        const vaultModal = document.getElementById('vaultModal');
+        const vaultPanel = document.getElementById('vaultPanel');
+        const vaultList = document.getElementById('vaultList');
+        const eggBadge = document.getElementById('eggBadge');
+        const vaultProgressText = document.getElementById('vaultProgressText');
+        const vaultProgressBar = document.getElementById('vaultProgressBar');
+        const clearArchiveBtn = document.getElementById('clearArchiveBtn');
+
+        const resetBtn = document.getElementById('resetBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+
+        /* --- FUNCTIONS --- */
+
+        function updateVaultUI() {
+            // Update counts
+            const count = discoveredEggs.size;
+            const total = EASTER_EGGS.length;
+            eggBadge.textContent = `${count}/${total}`;
+            vaultProgressText.textContent = `${count} / ${total}`;
+            vaultProgressBar.style.width = `${(count / total) * 100}%`;
+
+            // Populate vault list
+            vaultList.innerHTML = '';
+            EASTER_EGGS.forEach(egg => {
+                const isFound = discoveredEggs.has(egg.id);
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-lg border transition ${
+                    isFound 
+                        ? 'bg-imperial-crimson/30 border-imperial-gold/50 text-imperial-parchment' 
+                        : 'bg-stone-900/50 border-stone-800 text-stone-600'
+                }`;
+
+                item.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-cinzel font-bold text-xs ${isFound ? 'text-imperial-gold' : 'text-stone-600'}">
+                            ${isFound ? '👑 ' + egg.title : '🔒 Secret Vault Scroll'}
+                        </span>
+                        <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded ${isFound ? 'bg-imperial-gold/20 text-imperial-lightgold' : 'bg-stone-800 text-stone-600'}">
+                            ${isFound ? 'Unlocked' : 'Locked'}
+                        </span>
+                    </div>
+                    <p class="text-xs ${isFound ? 'text-stone-200 font-marcellus' : 'text-stone-600 italic'}">
+                        ${isFound ? `"${egg.text}"` : 'Crack more cookies during class to reveal this historical insight...'}
+                    </p>
+                    ${isFound ? `<p class="text-[11px] italic mt-2 text-imperial-lightgold/70 pt-1 border-t border-imperial-gold/10">${egg.history}</p>` : ''}
+                `;
+                vaultList.appendChild(item);
+            });
+        }
+
+        function saveDiscovered() {
+            localStorage.setItem('tsar_discovered_eggs', JSON.stringify(Array.from(discoveredEggs)));
+            updateVaultUI();
+        }
+
+        function breakCookie() {
+            if (isCracked) return;
+            isCracked = true;
+
+            // Play crunch audio
+            sfx.playCrackle();
+
+            // Animate cookie cracking
+            cookieEl.classList.add('cookie-cracked');
+            instructionTextEl.classList.add('opacity-0');
+
+            // Determine fortune type (35% chance for Easter Egg if not all found)
+            const isEasterEgg = (Math.random() < 0.35 || discoveredEggs.size === 0) && EASTER_EGGS.length > 0;
+            
+            setTimeout(() => {
+                if (isEasterEgg) {
+                    // Pick an easter egg
+                    const egg = EASTER_EGGS[Math.floor(Math.random() * EASTER_EGGS.length)];
+                    currentFortuneText = `[${egg.title}] ${egg.text}`;
+                    
+                    fortuneTagEl.textContent = "Imperial Secret";
+                    fortuneTagEl.className = "text-[10px] font-cinzel font-bold uppercase tracking-widest px-2.5 py-1 rounded bg-amber-500/20 text-amber-800 border border-amber-500/40 mb-1";
+                    
+                    fortuneTextEl.textContent = `"${egg.text}"`;
+                    historicalNoteEl.textContent = `📜 Context: ${egg.history}`;
+                    
+                    easterEggHeaderEl.classList.remove('hidden');
+                    historicalNoteEl.classList.remove('hidden');
+                    fortunePaperEl.classList.add('easter-egg-glow');
+
+                    // Play fanfare and register discovery
+                    sfx.playFanfare();
+                    if (!discoveredEggs.has(egg.id)) {
+                        discoveredEggs.add(egg.id);
+                        saveDiscovered();
+                        showToast(`New History Secret Unlocked: ${egg.title}!`);
+                    }
+                } else {
+                    // Regular Fortune
+                    const fortune = GENERAL_FORTUNES[Math.floor(Math.random() * GENERAL_FORTUNES.length)];
+                    currentFortuneText = fortune;
+
+                    fortuneTagEl.textContent = "Academic Wisdom";
+                    fortuneTagEl.className = "text-[10px] font-cinzel font-bold uppercase tracking-widest px-2.5 py-1 rounded bg-imperial-crimson/10 text-imperial-crimson border border-imperial-crimson/20 mb-1";
+                    
+                    fortuneTextEl.textContent = `"${fortune}"`;
+                    
+                    easterEggHeaderEl.classList.add('hidden');
+                    historicalNoteEl.classList.add('hidden');
+                    fortunePaperEl.classList.remove('easter-egg-glow');
+                }
+
+                // Show Paper
+                fortunePaperEl.classList.add('active');
+            }, 300);
+        }
+
+        function resetCookie() {
+            fortunePaperEl.classList.remove('active');
+            
+            setTimeout(() => {
+                cookieEl.classList.remove('cookie-cracked');
+                instructionTextEl.classList.remove('opacity-0');
+                isCracked = false;
+            }, 300);
+        }
+
+        function showToast(message) {
+            toastMsg.textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }, 3000);
+        }
+
+        /* --- EVENT LISTENERS --- */
+
+        cookieEl.addEventListener('click', breakCookie);
+        resetBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            resetCookie();
+        });
+
+        copyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!currentFortuneText) return;
+            
+            // Clipboard fallback mechanism
+            const tempInput = document.createElement('textarea');
+            tempInput.value = currentFortuneText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showToast("Fortune copied to clipboard!");
+        });
+
+        // Vault Drawer Controls
+        openVaultBtn.addEventListener('click', () => {
+            vaultModal.classList.remove('opacity-0', 'pointer-events-none');
+            vaultPanel.classList.remove('translate-x-full');
+        });
+
+        const closeVault = () => {
+            vaultPanel.classList.add('translate-x-full');
+            vaultModal.classList.add('opacity-0', 'pointer-events-none');
+        };
+
+        closeVaultBtn.addEventListener('click', closeVault);
+        vaultModal.addEventListener('click', (e) => {
+            if (e.target === vaultModal) closeVault();
+        });
+
+        clearArchiveBtn.addEventListener('click', () => {
+            if (confirm("Are you sure you want to reset your Tsar's Vault collection?")) {
+                discoveredEggs.clear();
+                saveDiscovered();
+                showToast("Archive collection reset.");
+            }
+        });
+
+        // Init UI on load
+        updateVaultUI();
+    </script>
+</body>
+</html>
